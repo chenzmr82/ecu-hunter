@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ECU Hunter</title>
+<meta name="description" content="Búsqueda diaria de centralita usada A3C0320410001 / HW 9815023380 para Peugeot 3008 1.2 PureTech">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect x='5' y='7' width='22' height='18' rx='3' fill='%23185abc'/><g stroke='%23185abc' stroke-width='2'><path d='M9 3v4M14 3v4M19 3v4M24 3v4M9 25v4M14 25v4M19 25v4M24 25v4'/></g><text x='16' y='20' font-size='9' text-anchor='middle' fill='white' font-family='sans-serif' font-weight='700'>ECU</text></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="title-row">
+      <div>
+        <h1 data-i18n="title">Cazador de centralita</h1>
+        <p class="sub" data-i18n="subtitle">Peugeot 3008 1.2 PureTech 130 · Continental VD56.1</p>
+      </div>
+      <div class="lang" role="group" aria-label="Idioma / Language">
+        <button type="button" data-lang="es" aria-pressed="true">ES</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+    <div class="target" id="target"></div>
+    <div class="status" id="status"></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="stats" id="stats"></section>
+
+  <section class="filters" aria-label="Filtros">
+    <input type="search" id="q" data-i18n-ph="search" placeholder="Buscar: modelo, vendedor, código…">
+    <label><input type="checkbox" id="f-hide-tried" checked> <span data-i18n="f_hide_tried">Ocultar ya probadas</span></label>
+    <label><input type="checkbox" id="f-warranty"> <span data-i18n="f_warranty">Solo con garantía ≥ 12 meses</span></label>
+    <label><input type="checkbox" id="f-unlocked"> <span data-i18n="f_unlocked">Solo virgen / desbloqueada</span></label>
+    <label><input type="checkbox" id="f-hide-kits"> <span data-i18n="f_hide_kits">Ocultar kits</span></label>
+    <label><input type="checkbox" id="f-same-engine"> <span data-i18n="f_same_engine">Solo mismo motor (130 CV)</span></label>
+  </section>
+
+  <section id="sec-new" class="sec">
+    <h2><span data-i18n="h_new">Nuevas (24–48 h)</span> <span class="count" id="c-new"></span></h2>
+    <div class="list" id="list-new"></div>
+  </section>
+
+  <section id="sec-a" class="sec">
+    <h2><span data-i18n="h_a">Confirmadas: A3C y HW exactos</span> <span class="count" id="c-a"></span></h2>
+    <p class="hint" data-i18n="hint_a">A3C0320410001 y HW 9815023380 indicados por el vendedor. Falta confirmar el inmovilizador con el vendedor.</p>
+    <div class="list" id="list-a"></div>
+  </section>
+
+  <section id="sec-n" class="sec">
+    <details id="det-n">
+      <summary><h2><span data-i18n="h_n">Por verificar</span> <span class="count" id="c-n"></span></h2></summary>
+      <p class="hint" data-i18n="hint_n">Falta el A3C o el HW en el anuncio, o aparece con un dígito distinto. Pedir foto de la etiqueta antes de comprar.</p>
+      <div class="list" id="list-n"></div>
+    </details>
+  </section>
+
+  <section id="sec-x" class="sec">
+    <details>
+      <summary><h2><span data-i18n="h_x">Descartadas</span> <span class="count" id="c-x"></span></h2></summary>
+      <p class="hint" data-i18n="hint_x">Diésel, otro motor, otro A3C, bloqueadas, o el código solo aparece en una lista pegada de decenas de referencias.</p>
+      <div class="list" id="list-x"></div>
+    </details>
+  </section>
+
+  <footer class="foot">
+    <p data-i18n-html="foot">Datos públicos de Ovoko, B-Parts y eBay. Precios de Ovoko sin envío ni tarifa de servicio. Para marcar una unidad como probada, edita <a id="tried-link" href="#">data/tried.yaml</a>.</p>
+  </footer>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="app.js"></script>
+</body>
+</html>
