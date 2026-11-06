@@ -16,12 +16,12 @@
         <h1 data-i18n="title">Cazador de centralita</h1>
         <p class="sub" data-i18n="subtitle">Peugeot 3008 1.2 PureTech 130 · Continental VD56.1</p>
       </div>
-      <div class="lang" role="group" aria-label="Idioma / Language">
+      <div class="lang notranslate" translate="no" role="group" aria-label="Idioma / Language">
         <button type="button" data-lang="es" aria-pressed="true">ES</button>
         <button type="button" data-lang="en" aria-pressed="false">EN</button>
       </div>
     </div>
-    <div class="target" id="target"></div>
+    <div class="target notranslate" translate="no" id="target"></div>
     <div class="status" id="status"></div>
   </div>
 </header>
@@ -31,7 +31,15 @@
 
   <section class="filters" aria-label="Filtros">
     <input type="search" id="q" data-i18n-ph="search" placeholder="Buscar: modelo, vendedor, código…">
-    <label><input type="checkbox" id="f-hide-tried" checked> <span data-i18n="f_hide_tried">Ocultar ya probadas</span></label>
+    <label><span data-i18n="f_tested">Probadas</span>
+      <select id="f-tested">
+        <option value="untested" data-i18n="opt_untested">Sin probar</option>
+        <option value="tested" data-i18n="opt_tested">Solo probadas</option>
+        <option value="all" data-i18n="opt_all">Todas</option>
+      </select></label>
+    <label class="notranslate" translate="no">A3C <select id="f-a3c"></select></label>
+    <label class="notranslate" translate="no">HW <select id="f-hw"></select></label>
+    <label class="notranslate" translate="no">PSA <select id="f-psa"></select></label>
     <label><input type="checkbox" id="f-warranty"> <span data-i18n="f_warranty">Solo con garantía ≥ 12 meses</span></label>
     <label><input type="checkbox" id="f-unlocked"> <span data-i18n="f_unlocked">Solo virgen / desbloqueada</span></label>
     <label><input type="checkbox" id="f-hide-kits"> <span data-i18n="f_hide_kits">Ocultar kits</span></label>
@@ -66,11 +74,12 @@
   </section>
 
   <footer class="foot">
-    <p data-i18n-html="foot">Datos públicos de Ovoko, B-Parts y eBay. Precios de Ovoko sin envío ni tarifa de servicio. Para marcar una unidad como probada, edita <a id="tried-link" href="#">data/tried.yaml</a>.</p>
+    <p data-i18n-html="foot">Datos públicos de Ovoko, B-Parts y eBay. Precios de Ovoko sin envío ni tarifa de servicio. Para marcar una unidad como probada, usa la casilla «Probada por el taller» (o edita <a id="tried-link" href="#">data/tried.yaml</a>).</p>
   </footer>
 </main>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="settings.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

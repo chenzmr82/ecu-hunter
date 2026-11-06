@@ -7,6 +7,11 @@
       subtitle: "Peugeot 3008 1.2 PureTech 130 · Continental VD56.1",
       search: "Buscar: modelo, vendedor, código…",
       f_hide_tried: "Ocultar ya probadas",
+      f_tested: "Probadas", opt_untested: "Sin probar", opt_tested: "Solo probadas", opt_all: "Todas",
+      c_any: "todos", c_exact: "✓ exacto", c_near: "≈ casi", c_missing: "✗ falta",
+      tested_box: "Probada por el taller", tested_yaml: "marcada en tried.yaml",
+      saved: "Guardado", saved_local: "Guardado solo en este dispositivo", save_err: "No se pudo guardar; queda en este dispositivo",
+      tested_on: "probada",
       f_warranty: "Solo con garantía ≥ 12 meses",
       f_unlocked: "Solo virgen / desbloqueada",
       f_hide_kits: "Ocultar kits",
@@ -18,7 +23,7 @@
       hint_n: "Falta el A3C o el HW en el anuncio, o aparece con un dígito distinto. Pedir foto de la etiqueta antes de comprar.",
       h_x: "Descartadas",
       hint_x: "Diésel, otro motor, otro A3C, bloqueadas, o el código solo aparece en una lista pegada de decenas de referencias.",
-      foot: 'Datos públicos de Ovoko, B-Parts y eBay. Precios de Ovoko sin envío ni tarifa de servicio. Para marcar una unidad como probada, edita <a id="tried-link" href="#">data/tried.yaml</a>.',
+      foot: 'Datos públicos de Ovoko, B-Parts y eBay. Precios de Ovoko sin envío ni tarifa de servicio. Para marcar una unidad como probada, usa la casilla «Probada por el taller» (o edita <a id="tried-link" href="#">data/tried.yaml</a>).',
       last_run: "Última búsqueda",
       runs: "búsquedas",
       s_a: "confirmadas", s_n: "por verificar", s_new: "nuevas 24–48 h", s_offers: "anuncios",
@@ -45,6 +50,11 @@
       subtitle: "Peugeot 3008 1.2 PureTech 130 · Continental VD56.1",
       search: "Search: model, seller, code…",
       f_hide_tried: "Hide already tried",
+      f_tested: "Tested", opt_untested: "Not tested", opt_tested: "Tested only", opt_all: "All",
+      c_any: "any", c_exact: "✓ exact", c_near: "≈ near", c_missing: "✗ missing",
+      tested_box: "Tested by the garage", tested_yaml: "marked in tried.yaml",
+      saved: "Saved", saved_local: "Saved on this device only", save_err: "Could not save; kept on this device",
+      tested_on: "tested",
       f_warranty: "Only ≥ 12-month warranty",
       f_unlocked: "Only virgin / unlocked",
       f_hide_kits: "Hide kits",
@@ -56,7 +66,7 @@
       hint_n: "A3C or HW missing from the listing, or one digit off. Ask for a label photo before buying.",
       h_x: "Excluded",
       hint_x: "Diesel, other engine, other A3C, locked, or the code only appears inside a pasted list of dozens of references.",
-      foot: 'Public data from Ovoko, B-Parts and eBay. Ovoko prices exclude shipping and service fee. To mark a unit as tried, edit <a id="tried-link" href="#">data/tried.yaml</a>.',
+      foot: 'Public data from Ovoko, B-Parts and eBay. Ovoko prices exclude shipping and service fee. To mark a unit as tested, use the “Tested by the garage” box (or edit <a id="tried-link" href="#">data/tried.yaml</a>).',
       last_run: "Last search",
       runs: "searches",
       s_a: "confirmed", s_n: "needs check", s_new: "new 24–48 h", s_offers: "listings",
@@ -84,6 +94,25 @@
   var lang = "es";
   try { lang = localStorage.getItem("ecu-lang") || "es"; } catch (e) {}
   var DATA = null;
+  var SETTINGS = window.ECU_SETTINGS || {};
+  var TESTED = {};   // offer key -> {at, label}
+  function loadLocal() {
+    try { return JSON.parse(localStorage.getItem("ecu-tested") || "{}"); } catch (e) { return {}; }
+  }
+  function saveLocal(m) { try { localStorage.setItem("ecu-tested", JSON.stringify(m)); } catch (e) {} }
+  var LOCAL = loadLocal();   // key -> {tested: bool, at}
+  function isTested(u) {
+    if (u.tried) return "yaml";
+    var keys = u.offers.map(function (o) { return o.key; });
+    for (var i = 0; i < keys.length; i++) {
+      var l = LOCAL[keys[i]];
+      if (l && l.pending) return l.tested ? "shared" : false;
+    }
+    for (var j = 0; j < keys.length; j++) if (TESTED[keys[j]]) return "shared";
+    if (!SETTINGS.testedEndpoint)
+      for (var k = 0; k < keys.length; k++) if (LOCAL[keys[k]] && LOCAL[keys[k]].tested) return "local";
+    return false;
+  }
 
   function t(k) { return (I18N[lang] && I18N[lang][k]) || I18N.es[k] || k; }
   function esc(s) {
@@ -125,7 +154,7 @@
   function codeTag(label, status) {
     var cls = status === "exact" ? "ok" : status === "near" ? "warn" : "bad";
     var mark = status === "exact" ? "✓" : status === "near" ? "≈" : "✗";
-    return '<span class="tag ' + cls + '">' + label + " " + mark + "</span>";
+    return '<span class="tag notranslate ' + cls + '" translate="no">' + label + " " + mark + "</span>";
   }
 
   function immTag(u) {
@@ -156,7 +185,7 @@
     return '<tr class="' + (o.gone ? "gone" : "") + '">' +
       '<td><span class="plat">' + esc(PLAT[o.platform] || o.platform) + "</span><br><span class=\"meta\">" + esc(o.seller || o.platform_id) + "</span></td>" +
       '<td class="meta meta-col">' + esc(meta.join(" · ")) + "</td>" +
-      '<td class="p"><b>' + esc(price) + "</b><br><span class=\"meta\">" + esc(sub.join(" ")) + "</span></td>" +
+      '<td class="p notranslate" translate="no"><b>' + esc(price) + "</b><br><span class=\"meta\">" + esc(sub.join(" ")) + "</span></td>" +
       '<td class="go"><a class="btn primary" href="' + esc(o.url) + '" target="_blank" rel="noopener noreferrer">' + esc(t("open")) + " ↗</a></td></tr>";
   }
 
@@ -188,23 +217,35 @@
     if (u.notes && u.notes.length) extra += '<p class="notes">📝 ' + esc(u.notes.join(" · ")) + "</p>";
     if (u.dedupe) extra += '<p class="dedupe">🔗 ' + esc(t("same_unit")) + " (" + esc(t("conf_" + u.dedupe.confidence)) + "): " + esc(u.dedupe.why.join(", ")) + "</p>";
     if (u.tried) extra += '<p class="notes">↩ ' + esc(t("tried_note")) + (u.tried.returned ? " " + esc(u.tried.returned) : "") + (u.tried.reason ? ": " + esc(u.tried.reason) : "") + "</p>";
-    var cls = "card" + (u.tried ? " tried" : "") + ((u.badges || []).indexOf("GONE") >= 0 ? " gone" : "") +
+    var tst = isTested(u);
+    var cls = "card" + (tst ? " tested-card" : "") + ((u.badges || []).indexOf("GONE") >= 0 ? " gone" : "") +
       ((u.badges || []).some(function (b) { return b === "NEW" || b === "RECENT"; }) ? " new" : "");
     return '<article class="' + cls + '" id="u-' + esc(u.id.replace(/[^a-zA-Z0-9]/g, "_")) + '">' + img +
       "<div>" +
       '<div class="head"><div><div class="donor">' + esc(donor) + "</div>" +
       '<div class="reasons">' + esc(bits.join(" · ")) + (u.offers.length > 1 ? " · " + u.offers.length + " " + esc(t("unit_offers")) : "") + "</div></div>" +
-      '<div class="price">' + esc(best) + (bestSub ? "<small>" + esc(bestSub) + "</small>" : "") + "</div></div>" +
+      '<div class="price notranslate" translate="no">' + esc(best) + (bestSub ? "<small>" + esc(bestSub) + "</small>" : "") + "</div></div>" +
       '<div class="tags">' + tags.join("") + "</div>" + extra +
       '<table class="offers"><tbody>' + u.offers.map(offerRow).join("") + "</tbody></table>" +
-      '<div class="actions"><button type="button" class="btn" data-ask="1">' + esc(t("ask")) + "</button>" +
-      '<a class="btn" target="_blank" rel="noopener" href="' + esc(repoLinks()) + '">' + esc(t("mark_tried")) + "</a></div>" +
+      '<div class="actions">' +
+      '<label class="tested-box' + (tst ? " on" : "") + '"' + (tst === "yaml" ? ' title="' + esc(t("tested_yaml")) + '"' : "") + '>' +
+      '<input type="checkbox" data-test="' + esc(u.id) + '"' + (tst ? " checked" : "") + (tst === "yaml" ? " disabled" : "") + "> " +
+      esc(t("tested_box")) + "</label>" +
+      '<button type="button" class="btn" data-ask="1">' + esc(t("ask")) + "</button></div>" +
       "</div></article>";
   }
 
   function passes(u) {
     var q = (document.getElementById("q").value || "").trim().toLowerCase();
-    if (document.getElementById("f-hide-tried").checked && u.tried) return false;
+    var ft = document.getElementById("f-tested").value;
+    var tst = isTested(u);
+    if (ft === "untested" && tst) return false;
+    if (ft === "tested" && !tst) return false;
+    var cf = { a3c: "f-a3c", hw: "f-hw", psa: "f-psa" };
+    for (var c in cf) {
+      var v = document.getElementById(cf[c]).value;
+      if (v !== "any" && (u[c] || "missing") !== v) return false;
+    }
     if (document.getElementById("f-warranty").checked && !u.offers.some(function (o) { return (o.warranty_months || 0) >= 12; })) return false;
     if (document.getElementById("f-unlocked").checked && u.immobiliser !== "unlocked") return false;
     if (document.getElementById("f-hide-kits").checked && u.kit) return false;
@@ -224,8 +265,18 @@
     document.getElementById(countId).textContent = "(" + list.length + ")";
   }
 
+  function fillCodeSelects() {
+    ["f-a3c", "f-hw", "f-psa"].forEach(function (id) {
+      var el = document.getElementById(id), v = el.value || "any";
+      el.innerHTML = ["any", "exact", "near", "missing"].map(function (o) {
+        return '<option value="' + o + '"' + (o === v ? " selected" : "") + ">" + esc(t("c_" + o)) + "</option>";
+      }).join("");
+    });
+  }
+
   function render() {
     applyStatic();
+    fillCodeSelects();
     if (!DATA) return;
     var tg = DATA.target;
     document.getElementById("target").innerHTML =
@@ -259,6 +310,27 @@
     setTimeout(function () { el.classList.remove("show"); }, 1600);
   }
 
+  document.addEventListener("change", function (e) {
+    var cb = e.target.closest && e.target.closest("input[data-test]");
+    if (!cb || !DATA) return;
+    var u = DATA.units.filter(function (x) { return x.id === cb.getAttribute("data-test"); })[0];
+    if (!u) return;
+    var on = cb.checked, now = new Date().toISOString();
+    var keys = u.offers.map(function (o) { return o.key; });
+    keys.forEach(function (k) { LOCAL[k] = { tested: on, at: now, pending: !!SETTINGS.testedEndpoint }; });
+    saveLocal(LOCAL);
+    if (!SETTINGS.testedEndpoint) { toast(t("saved_local")); render(); return; }
+    var label = ((u.donor && u.donor.text) || "").slice(0, 120) + " | " + (u.best_total_eur || "");
+    fetch(SETTINGS.testedEndpoint, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ keys: keys, tested: on, label: label }) })
+      .then(function (r) { return r.json(); })
+      .then(function () {
+        keys.forEach(function (k) { if (on) TESTED[k] = { at: now, label: label }; else delete TESTED[k]; LOCAL[k].pending = false; });
+        saveLocal(LOCAL); toast(t("saved")); render();
+      })
+      .catch(function () { toast(t("save_err")); render(); });
+  });
+
   document.addEventListener("click", function (e) {
     var b = e.target.closest("[data-lang]");
     if (b) {
@@ -274,13 +346,27 @@
       else { window.prompt("", msg); }
     }
   });
-  ["q", "f-hide-tried", "f-warranty", "f-unlocked", "f-hide-kits", "f-same-engine"].forEach(function (id) {
+  ["q", "f-tested", "f-a3c", "f-hw", "f-psa", "f-warranty", "f-unlocked", "f-hide-kits", "f-same-engine"].forEach(function (id) {
     document.getElementById(id).addEventListener(id === "q" ? "input" : "change", render);
   });
 
-  fetch("data/units.json", { cache: "no-store" })
-    .then(function (r) { return r.json(); })
-    .then(function (d) { DATA = d; render(); })
+  function loadShared() {
+    if (!SETTINGS.testedEndpoint) return Promise.resolve();
+    return fetch(SETTINGS.testedEndpoint, { cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        TESTED = {};
+        (d.tested || []).forEach(function (x) { TESTED[x.key] = x; });
+        Object.keys(LOCAL).forEach(function (k) { if (!LOCAL[k].pending) delete LOCAL[k]; });
+        saveLocal(LOCAL);
+      })
+      .catch(function () {});
+  }
+  Promise.all([
+    fetch("data/units.json", { cache: "no-store" }).then(function (r) { return r.json(); }),
+    loadShared()
+  ])
+    .then(function (res) { DATA = res[0]; render(); })
     .catch(function () { document.getElementById("stats").innerHTML = '<p class="empty">units.json ✗</p>'; });
   applyStatic();
 })();

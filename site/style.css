@@ -137,3 +137,13 @@ details[open] > summary h2::before { content: "▾"; }
   padding: 8px 14px; border-radius: 8px; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .2s;
 }
 .toast.show { opacity: 1; }
+
+.filters select {
+  font: inherit; font-size: 14px; padding: 5px 6px; border-radius: 7px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text); margin-left: 4px;
+}
+.tested-box { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; border: 1px solid var(--border);
+  border-radius: 7px; padding: 3px 9px; background: var(--surface-2); cursor: pointer; }
+.tested-box input { width: 16px; height: 16px; margin: 0; accent-color: var(--ok); }
+.tested-box.on { background: var(--ok-bg); color: var(--ok); border-color: transparent; font-weight: 600; }
+.card.tested-card { opacity: 0.6; }
