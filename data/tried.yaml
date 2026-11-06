@@ -1,0 +1,16 @@
+# Units already bought and returned. The page greys these out, even if relisted elsewhere.
+# Edit in GitHub (pencil icon) and commit. One entry per unit. Fill what you know;
+# platform + platform_id is the strongest match, then serial, then seller + km.
+#
+# Example:
+# - platform: ovoko            # ovoko | bparts | ebay
+#   platform_id: TPE962916     # Ovoko SKU, B-Parts BP..., or eBay item number
+#   serial: "201138929"        # number on the ECU label, if known
+#   seller: Recoautos
+#   km: 61000                  # donor mileage from the listing
+#   bought: 2026-10-01
+#   returned: 2026-10-15
+#   reason: "no arrancaba tras clonar"
+#   notes: ""
+
+tried: []

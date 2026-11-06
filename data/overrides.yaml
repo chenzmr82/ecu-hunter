@@ -1,0 +1,25 @@
+# Facts learned by hand (seller replies, label photos, listing comments).
+# Keys are "<platform>:<platform_id>" as shown on the page.
+#
+# offers:
+#   "ebay:123456789":
+#     immobiliser: unlocked | locked | kit | unknown
+#     codes_add: [A3C0320410001, "9815023380"]   # codes stated on the listing page / comment
+#     codes_verified: true                        # label photo checked: A3C + HW exact
+#     serial: "201138929"                         # serial read from the label
+#     note: "Seller replied 07/11: virgin, photo OK"
+# same_unit:      # force-merge listings that are the same physical unit
+#   - ["ovoko:ABC123", "ebay:123456789"]
+# not_same_unit:  # split listings the matcher merged by mistake
+#   - ["ovoko:ABC123", "bparts:BP1M1"]
+
+offers:
+  "ovoko:TPE962916":
+    codes_add: ["9834609880", "9815023380", "A3C0320410001"]
+    note: "Comentario del vendedor en Ovoko: '9834609880 -- 9815023380 -- A3C0320410001 CONTINENTAL' (06/11)."
+  "ebay:137762699548":
+    immobiliser: unlocked
+    note: "Vendedor (NL): 'Virgin vrij gezet, plug and play, solo telecodificar'. A3C escrito 'A3C032041001' (un dígito menos) y sin HW: pedir foto de la etiqueta. Coche donante 16.200 km."
+
+same_unit: []
+not_same_unit: []
