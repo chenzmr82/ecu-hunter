@@ -25,7 +25,7 @@ def line(u):
 def main():
     with open(os.path.join(ROOT, "site", "data", "units.json"), encoding="utf-8") as f:
         d = json.load(f)
-    units = [u for u in d["units"] if u["grade"] != "X" and not u.get("tried")]
+    units = [u for u in d["units"] if u["grade"] != "X" and not u.get("tried") and not u.get("tested_by_garage")]
     new = [u for u in units if set(u["badges"]) & {"NEW"}]
     drops = [u for u in units if "PRICE_DOWN" in u["badges"]]
     virgin = [u for u in units if u["immobiliser"] == "unlocked"]

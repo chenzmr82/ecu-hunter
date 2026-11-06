@@ -213,6 +213,21 @@ def tried_match(unit_offers, serials, tried):
     return None
 
 
+# ---------------------------------------------------------------- garage ticks (Google Sheet)
+def load_garage_ticks():
+    """Keys ticked 'Probada por el taller' on the page. Best effort: empty if unreachable."""
+    url = CFG.get("tested_endpoint")
+    if not url:
+        return {}
+    try:
+        import urllib.request
+        with urllib.request.urlopen(url, timeout=20) as r:
+            return {x["key"]: x for x in json.load(r).get("tested", [])}
+    except Exception as e:  # offline build, sandbox, Google hiccup
+        print("garage ticks not loaded:", e)
+        return {}
+
+
 # ---------------------------------------------------------------- main
 def main():
     runs = load_runs()
@@ -223,6 +238,7 @@ def main():
     overrides = load_yaml("overrides.yaml")
     ov_offers = overrides.get("offers") or {}
     tried = (load_yaml("tried.yaml") or {}).get("tried") or []
+    garage = load_garage_ticks()
 
     offers = collect_offers(runs)
     groups, why = dedupe(offers, overrides)
@@ -359,6 +375,7 @@ def main():
             "listed_at": listed_at,
             "badges": badges,
             "tried": t,
+            "tested_by_garage": next((garage[k] for k in ks if k in garage), None),
             "dedupe": {"confidence": conf, "why": sorted({w["why"] for w in why.get(root, [])})} if conf else None,
             "notes": [v["note"] for v in ovs if v.get("note")],
             "seller_comments": [{"platform": o["platform"], "text": o["comment"][:400]} for o in live if o.get("comment")],
