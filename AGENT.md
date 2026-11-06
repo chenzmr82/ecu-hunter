@@ -1,6 +1,8 @@
-# Daily run: instructions for the scheduled Claude task
+# Manual / assisted run (optional)
 
-Goal: every morning, collect today's ECU listings, add them as a new run, and publish the page.
+The daily run is automatic: `.github/workflows/daily.yml` runs `collector/collect.py` on GitHub every morning.
+This file is for an extra, hand-driven run from a browser (e.g. to include eBay search pages before an API key exists,
+or to read label photos). Goal: collect today's ECU listings, add them as a new run, and publish the page.
 Target: A3C0320410001 + HW 9815023380 (PSA 9834609880). Both A3C and HW must be exact (mechanic's rule).
 Garage rule: no immobiliser-locked units. Must ship to Spain.
 
