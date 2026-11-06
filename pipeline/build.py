@@ -78,8 +78,9 @@ def collect_offers(runs):
 def missed_runs(runs, platform, last_seen):
     """How many later successful runs of this platform did not contain the offer."""
     n = 0
+    last = dt.datetime.fromisoformat(last_seen)
     for r in runs:
-        if r["run_at"] <= last_seen:
+        if r["_at"] <= last:
             continue
         if (r["sources"].get(platform) or {}).get("ok"):
             n += 1
@@ -289,11 +290,11 @@ def main():
         serials = {str(v["serial"]) for v in ovs if v.get("serial")}
         t = tried_match(items, serials, tried)
 
-        first_seen = min(o["first_seen"] for _, o in items)
+        first_seen = min((o["first_seen"] for _, o in items), key=dt.datetime.fromisoformat)
         listed = [o["listed_at"] for _, o in items if o.get("listed_at")]
-        listed_at = min(listed) if listed else None
+        listed_at = min(listed, key=dt.datetime.fromisoformat) if listed else None
         fresh_ref = None
-        if first_seen > baseline:
+        if dt.datetime.fromisoformat(first_seen) > dt.datetime.fromisoformat(baseline):
             fresh_ref = first_seen
         elif listed_at:
             fresh_ref = listed_at
@@ -309,7 +310,7 @@ def main():
         all_gone = all(o["gone"] for _, o in items)
         if all_gone:
             badges.append("GONE")
-            last = max(o["last_seen"] for _, o in items)
+            last = max((o["last_seen"] for _, o in items), key=dt.datetime.fromisoformat)
             if (now - dt.datetime.fromisoformat(last)).days > CFG["gone_keep_days"]:
                 continue
         if t:
@@ -323,7 +324,7 @@ def main():
             offers_out.append({k2: o.get(k2) for k2 in (
                 "key", "platform", "platform_id", "url", "title", "seller", "ships_from", "non_eu",
                 "price_eur", "shipping_eur", "total_eur", "price_note", "warranty_months", "return_days",
-                "free_returns", "listed_at", "first_seen", "gone", "price_down", "prices", "image")})
+                "free_returns", "listed_at", "first_seen", "last_seen", "gone", "price_down", "prices", "image")})
             offers_out[-1]["codes"] = o["codes_all"]
             offers_out[-1]["cross_ref"] = o["cross_ref"]
         live_out = [o for o in offers_out if not o["gone"]] or offers_out
@@ -360,6 +361,7 @@ def main():
             "tried": t,
             "dedupe": {"confidence": conf, "why": sorted({w["why"] for w in why.get(root, [])})} if conf else None,
             "notes": [v["note"] for v in ovs if v.get("note")],
+            "seller_comments": [{"platform": o["platform"], "text": o["comment"][:400]} for o in live if o.get("comment")],
         })
 
     units.sort(key=lambda u: (GRADE_RANK[u["grade"]], bool(u["tried"]), "GONE" in u["badges"], -u["code_score"],

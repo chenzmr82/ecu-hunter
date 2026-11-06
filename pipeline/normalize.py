@@ -206,6 +206,39 @@ def norm_ebay(raw, run_at):
     return out
 
 
+ISO_ES = {"ES": "España", "FR": "Francia", "DE": "Alemania", "IT": "Italia", "PT": "Portugal", "PL": "Polonia",
+          "LT": "Lituania", "LV": "Letonia", "EE": "Estonia", "NL": "Países Bajos", "BE": "Bélgica",
+          "GB": "Reino Unido", "IE": "Irlanda", "SK": "Eslovaquia", "CZ": "República Checa", "RO": "Rumanía",
+          "BG": "Bulgaria", "HU": "Hungría", "AT": "Austria", "SI": "Eslovenia", "HR": "Croacia", "GR": "Grecia",
+          "DK": "Dinamarca", "SE": "Suecia", "FI": "Finlandia", "NO": "Noruega", "CH": "Suiza", "UA": "Ucrania",
+          "TR": "Turquía", "CN": "China", "US": "Estados Unidos", "JP": "Japón"}
+
+
+def norm_ebay_api(raw, run_at):
+    """eBay Browse API item summaries (collector/collect.py)."""
+    out = []
+    for it in raw["items"]:
+        title = it.get("title") or ""
+        if re.search(r"servicio|service|fichero|software", title, re.I):
+            continue
+        codes = extract_codes(title)
+        if not relevant(codes, title):
+            continue
+        frm = ISO_ES.get(it.get("country"), it.get("country") or "España")
+        price, ship = it.get("price"), it.get("ship")
+        out.append({
+            "platform": "ebay", "platform_id": str(it["id"]), "url": it["url"], "title": title,
+            "seller": it.get("seller"), "ships_from": frm, "non_eu": frm in NON_EU,
+            "price_eur": price, "shipping_eur": ship,
+            "price_note": None if ship is not None else "+ envío",
+            "total_eur": round(price + ship, 2) if price is not None and ship is not None else None,
+            "warranty_months": None, "return_days": None, "free_returns": None,
+            "codes": codes, "codes_raw": codes, "donor": donor_from_text(title), "engine_code": None,
+            "image": it.get("img"), "listed_at": it.get("created"), "text": title,
+        })
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--run-at", required=True)
