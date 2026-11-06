@@ -3,7 +3,10 @@
     "a3c": "A3C0320410001",
     "hw": "9815023380",
     "psa": "9834609880",
-    "same_engine": ["HNS", "EB2ADTS"],
+    "same_engine": [
+      "HNS",
+      "EB2ADTS"
+    ],
     "same_kw": 96
   },
   "ship_to": "ES",
@@ -12,5 +15,6 @@
   "recent_hours": 48,
   "gone_after_missed_runs": 2,
   "gone_keep_days": 7,
-  "ask_seller_message_es": "Hola, ¿pueden enviar una foto de la etiqueta de la centralita (códigos A3C y HW)? ¿Está bloqueada por inmovilizador o está virgen? Gracias."
+  "ask_seller_message_es": "Hola, ¿pueden enviar una foto de la etiqueta de la centralita (códigos A3C y HW)? ¿Está bloqueada por inmovilizador o está virgen? Gracias.",
+  "tested_endpoint": "https://script.google.com/macros/s/AKfycbxwrTsDGP5-1i2nSPxY9_fkznb-3BnPZj1W3cqbIRqtf-2JHujbwBngzva6zcLjpu5G/exec"
 }
