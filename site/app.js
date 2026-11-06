@@ -37,7 +37,8 @@
       same_unit: "Misma unidad en varios anuncios", conf_definitive: "seguro", conf_strong: "muy probable", conf_probable: "probable",
       tried_note: "Probada y devuelta",
       km: "km", unknown_price: "precio ¿?",
-      gone_offer: "retirado"
+      gone_offer: "retirado",
+      last_seen: "visto por última vez", seller_says: "Vendedor", src_off: "sin clave API"
     },
     en: {
       title: "ECU hunter",
@@ -74,7 +75,8 @@
       same_unit: "Same unit in several listings", conf_definitive: "certain", conf_strong: "very likely", conf_probable: "likely",
       tried_note: "Tried and returned",
       km: "km", unknown_price: "price ?",
-      gone_offer: "removed"
+      gone_offer: "removed",
+      last_seen: "last seen", seller_says: "Seller", src_off: "no API key"
     }
   };
   var PLAT = { ovoko: "Ovoko", bparts: "B-Parts", ebay: "eBay" };
@@ -150,6 +152,7 @@
     if (o.non_eu) meta.push("⚠ " + t("non_eu"));
     if (o.listed_at) meta.push(t("listed") + " " + fmtDate(o.listed_at, true));
     if (o.gone) meta.push(t("gone_offer"));
+    else if (DATA && o.last_seen && o.last_seen !== DATA.last_run_at) meta.push(t("last_seen") + " " + fmtDate(o.last_seen));
     return '<tr class="' + (o.gone ? "gone" : "") + '">' +
       '<td><span class="plat">' + esc(PLAT[o.platform] || o.platform) + "</span><br><span class=\"meta\">" + esc(o.seller || o.platform_id) + "</span></td>" +
       '<td class="meta meta-col">' + esc(meta.join(" · ")) + "</td>" +
@@ -179,6 +182,9 @@
     var bestSub = u.best_total_known ? "" : t("plus_ship");
     var extra = "";
     if (u.reasons && u.reasons.length) extra += '<p class="reasons">' + esc(u.reasons.join(" · ")) + "</p>";
+    (u.seller_comments || []).forEach(function (c) {
+      extra += '<p class="reasons">💬 ' + esc(t("seller_says")) + " (" + esc(PLAT[c.platform] || c.platform) + "): “" + esc(c.text.replace(/\s+/g, " ")) + "”</p>";
+    });
     if (u.notes && u.notes.length) extra += '<p class="notes">📝 ' + esc(u.notes.join(" · ")) + "</p>";
     if (u.dedupe) extra += '<p class="dedupe">🔗 ' + esc(t("same_unit")) + " (" + esc(t("conf_" + u.dedupe.confidence)) + "): " + esc(u.dedupe.why.join(", ")) + "</p>";
     if (u.tried) extra += '<p class="notes">↩ ' + esc(t("tried_note")) + (u.tried.returned ? " " + esc(u.tried.returned) : "") + (u.tried.reason ? ": " + esc(u.tried.reason) : "") + "</p>";
@@ -226,7 +232,7 @@
       "<code>A3C " + esc(tg.a3c) + "</code><code>HW " + esc(tg.hw) + "</code><code>PSA " + esc(tg.psa) + "</code>";
     var src = Object.keys(DATA.sources || {}).map(function (k) {
       var s = DATA.sources[k];
-      return '<span class="' + (s.ok ? "src-ok" : "src-bad") + '">' + esc(PLAT[k] || k) + (s.ok ? " · " + s.kept : " ✗") + "</span>";
+      return '<span class="' + (s.ok ? "src-ok" : "src-bad") + '">' + esc(PLAT[k] || k) + (s.ok ? " · " + s.kept : " ✗ " + (/API key/.test(s.error || "") ? t("src_off") : "")) + "</span>";
     });
     document.getElementById("status").innerHTML =
       "<span>" + esc(t("last_run")) + ": <b>" + esc(fmtDate(DATA.last_run_at, true)) + "</b> (" + DATA.runs + " " + esc(t("runs")) + ")</span>" + src.join("");
